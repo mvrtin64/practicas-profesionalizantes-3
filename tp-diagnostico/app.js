@@ -3,7 +3,6 @@ const mysql = require('mysql');
 
 const app = express();
 
-// Configuración de la conexión a la base de datos
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -11,7 +10,6 @@ const db = mysql.createConnection({
   database: 'mydb'
 });
 
-// Conectar a la base de datos
 db.connect((err) => {
   if (err) {
     throw err;
@@ -19,7 +17,7 @@ db.connect((err) => {
   console.log('Conectado a la base de datos MySQL');
 });
 
-// Definir un endpoint para obtener todas las provincias
+// endpoints
 app.get('/api/provincias', (req, res) => {
   const sql = 'SELECT * FROM provincia';
   db.query(sql, (err, result) => {
@@ -30,8 +28,38 @@ app.get('/api/provincias', (req, res) => {
   });
 });
 
-// Puerto en el que se ejecutará el servidor
+app.get('/api/nombres', (req, res) => {
+  const sql = 'SELECT * FROM nombre';
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.json(result);
+  });
+});
+
+app.get('/api/municipios', (req, res) => {
+  const sql = 'SELECT * FROM municipio';
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.json(result);
+  });
+});
+
+app.get('/api/departamentos', (req, res) => {
+  const sql = 'SELECT * FROM departamento';
+  db.query(sql, (err, result) => {
+    if (err) {
+      throw err;
+    }
+    res.json(result);
+  });
+});
+
+
+// port
 const PORT = process.env.PORT || 5000;
 
-// Iniciar el servidor
 app.listen(PORT, () => console.log(`Servidor iniciado en el puerto ${PORT}`));
