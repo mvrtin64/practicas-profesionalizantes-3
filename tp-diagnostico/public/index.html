@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selector de Localidades</title>
+</head>
+<body>
+    <h1>Selector de Localidades</h1>
+    <form id="localidadesForm">
+        <label for="provincia">Provincia:</label>
+        <select id="provincia" name="provincia">
+            <!-- Aquí puedes llenar las opciones con las provincias obtenidas desde la API -->
+        </select>
+        <br>
+        <label for="departamento">Departamento/Municipio:</label>
+        <select id="departamento" name="departamento">
+            <!-- Aquí se llenarán las opciones según la provincia seleccionada -->
+        </select>
+        <br>
+        <label for="localidad">Localidad:</label>
+        <select id="localidad" name="localidad">
+            <!-- Aquí se llenarán las opciones según el departamento/municipio seleccionado -->
+        </select>
+        <br>
+        <button type="submit">Seleccionar</button>
+    </form>
+
+    <!-- Aquí podrías agregar un div para mostrar los resultados o cualquier otro contenido adicional -->
+
+    <script src="script.js"></script>
+</body>
+</html>
