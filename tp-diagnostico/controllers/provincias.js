@@ -29,6 +29,7 @@ const obtenerProvinciaPorId = (req, res) => {
   });
 };
 
+
 module.exports = {
   obtenerProvincias,
   obtenerProvinciaPorId

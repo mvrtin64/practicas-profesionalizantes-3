@@ -8,4 +8,5 @@ const router = express.Router();
 router.get('/', provinciasController.obtenerProvincias);
 router.get('/:provincia_id', provinciasController.obtenerProvinciaPorId);
 
+
 module.exports = router;

@@ -29,7 +29,36 @@ const obtenerDepartamentoPorId = (req, res) => {
   });
 };
 
+const obtenerDepartamentosPorProvincia = async (provincia_provincia_id) => {
+  try {
+    const sql = 'SELECT * FROM departamento WHERE provincia_provincia_id = ?';
+    const departamentos = await new Promise((resolve, reject) => {
+      db.query(sql, [provincia_provincia_id], (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+
+    // Formatear los datos para la respuesta
+    const resultado = departamentos.map(departamento => ({
+      departamento_id: departamento.deparamento_id,
+      name: departamento.name,
+      provincia_provincia_id: departamento.provincia_provincia_id
+    }));
+
+    return resultado;
+  } catch (error) {
+    console.error('Error al obtener departamentos:', error);
+    throw new Error('Error al obtener departamentos');
+  }
+};
+
+
 module.exports = {
   obtenerDepartamentos,
-  obtenerDepartamentoPorId
+  obtenerDepartamentoPorId,
+  obtenerDepartamentosPorProvincia
 };

@@ -28,8 +28,34 @@ const obtenerMunicipioPorId = (req, res) => {
     res.json(result[0]);
   });
 };
+const obtenerMunicipiosPorDepartamento = async (deparamento_id) => {
+  try {
+    const sql = 'SELECT * FROM municipio WHERE departamento_deparamento_id = ?';
+    const municipios = await new Promise((resolve, reject) => {
+      db.query(sql, [deparamento_id], (err, result) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+
+    // Formatear los datos para la respuesta
+    const resultado = municipios.map(municipio => ({
+      municipio_id: municipio.muncipio_id,
+      name: municipio.name
+    }));
+
+    return resultado;
+  } catch (error) {
+    console.error('Error al obtener municipios:', error);
+    throw new Error('Error al obtener municipios');
+  }
+};
 
 module.exports = {
   obtenerMunicipios,
-  obtenerMunicipioPorId
+  obtenerMunicipioPorId,
+  obtenerMunicipiosPorDepartamento
 };
