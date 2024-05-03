@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Cuentas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+</body>
+<script>
+
+console.log('gestor de cuentas');
+
+class CustomSelector extends HTMLElement
+{
+	constructor()
+	{
+		super();
+
+        this._title = document.createElement('h2');
+        this._title.innerText = 'Gestor de Cuentas';
+
+        this._list = document.createElement('list');
+        this._list.classList.add('custom-list');
+        
+        this.buttonContainer = this._createButtons();
+	}
+
+    _createButtons() {
+        const buttonNames = ['Listar', 'Crear', 'Editar', 'Eliminar', '...'];
+        const buttonActions = ['listar', 'crear', 'editar', 'eliminar', 'otras'];
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('button-container');
+        
+        buttonNames.forEach((name, index) => {
+            const button = document.createElement('button');
+            button.innerText = name;
+            button.dataset.action = buttonActions[index];
+            button.addEventListener('click', this._handleButtonClick.bind(this));
+            buttonContainer.appendChild(button);
+
+            
+        });
+        return buttonContainer;
+    }
+
+
+     _fillListWithData() {
+    this._list.innerHTML = '';
+    fetch('cuentas.json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('No se pudo cargar el archivo JSON.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const cuentas = data.cuentas; 
+        cuentas.forEach(item => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `ID: ${item.id}, Usuario: ${item.username}, Saldo: ${item.saldo}`;
+            this._list.appendChild(listItem);
+        });
+    })
+    .catch(error => console.error('Error al cargar los datos:', error));
+    }
+
+
+    _handleButtonClick(event) {
+    const action = event.target.dataset.action;
+    switch (action) {
+        case 'listar':
+            this._fillListWithData();
+            break;
+        case 'crear':
+            this._createAccount();
+            break;
+        case 'editar':
+            this._editAccount();
+            break;
+        case 'eliminar':
+            this._deleteAccount();
+            break;
+        default:
+            console.log('Botón clickeado:', action);
+            break;
+        
+        }
+    }
+
+    _createAccount() {
+    const id = prompt('Ingrese el ID del nuevo usuario:');
+    const username = prompt('Ingrese el nombre de usuario:');
+    const saldo = prompt('Ingrese el saldo:');
+    
+    const newAccount = {
+        id: id,
+        username: username,
+        saldo: saldo
+    };
+
+    console.log('Nuevo usuario creado:', newAccount);
+    }
+
+    _editAccount() {
+    const id = prompt('Ingrese el ID del usuario a editar:');
+    fetch('cuentas.json')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('No se pudo cargar el archivo JSON.');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const accountId = parseInt(id);
+            const account = data.cuentas.find(item => item.id === accountId);
+
+            if (!account) {
+                console.log(`No se encontró una cuenta con el ID ${id}.`);
+                return;
+            }
+
+            // almaceno la versión anterior de la cuenta
+            const previousAccount = { ...account };
+
+            const newUsername = prompt('Ingrese el nuevo nombre de usuario:', account.username);
+            const newSaldo = prompt('Ingrese el nuevo saldo:', account.saldo);
+
+            // actualizo los datos de la cuenta con los nuevos datos
+            account.username = newUsername || account.username;
+            account.saldo = newSaldo || account.saldo;
+
+            console.log('Cuenta anterior:', previousAccount);
+            console.log('Cuenta actualizada:', account);
+        })
+        .catch(error => console.error('Error al cargar los datos del archivo JSON:', error));
+    }
+
+    _deleteAccount() {
+    fetch('cuentas.json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('No se pudo cargar el archivo JSON.');
+        }
+        return response.json();
+    })
+    .then(data => {
+        const id = prompt('Ingrese el ID de la cuenta a eliminar:');
+        const accountId = parseInt(id);
+
+        if (!isNaN(accountId)) {
+            const accountIndex = data.cuentas.findIndex(item => item.id === accountId);
+            if (accountIndex !== -1) {
+                const accountToDelete = data.cuentas[accountIndex];
+                console.log('Cuenta eliminada:', accountToDelete);
+            } else {
+                console.log(`No se encontró ninguna cuenta con el ID ${accountId}.`);
+            }
+        } else {
+            console.log('El ID ingresado no es válido.');
+        }
+    })
+    .catch(error => console.error('Error al cargar los datos:', error));
+    }
+
+	
+	connectedCallback()
+	{
+		//Es el primer método que se ejecuta cuando la instancia/objeto es insertado dentro
+		//de un nodo que ya sí está representado/renderizado en pantalla.
+		//Recién ahora, el objeto pasa a tener estado activo (Recibe eventos y puede contestarlos)
+		this.appendChild( this._title );
+        this.appendChild(this.buttonContainer);
+        this.appendChild(this._list);
+	}
+	
+	disconnectedCallback()
+	{
+		//Se ejecuta cuando el elemento gráfico es retirado del nodo que lo representa.
+		//Vuelve a estar desconectado de la recepción de eventos.
+	}
+	
+	adoptedCallback()
+	{
+		//Se ejecuta sólo cuando el objeto es movido de "proceso" o de "pestaña"
+	}
+	
+	attributesChangedCallback( oldValue, newValue )
+	{
+		//Se utiliza sólo para personalizar el comportamiento ante cambios en los valores de los atributos
+		//que se definen en la propiedad observableAttributes()
+	}
+	
+	static get observableAttributes()
+	{
+		//Sirve para definir atributos del estilo "HTML" y que tienen posibilidad de ser modificados
+		//durante la ejecución.
+		return ["value"];
+	}
+}
+
+customElements.define('x-custom-selector', CustomSelector);
+const mySelector = new CustomSelector();
+document.body.appendChild(mySelector);
+
+</script>
+</html>
