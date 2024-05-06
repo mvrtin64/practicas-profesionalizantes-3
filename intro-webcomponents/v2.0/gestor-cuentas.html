@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Cuentas</title>
+</head>
+<body>
+</body>
+<script>
+    const accounts = [
+    {
+      "id": 1,
+      "username": "IronMan92",
+      "saldo": "$100.50"
+    },
+    {
+      "id": 2,
+      "username": "LunaGamer77",
+      "saldo": "$75.25"
+    },
+    {
+      "id": 3,
+      "username": "ShadowNinja123",
+      "saldo": "$200.00"
+    },
+    {
+      "id": 4,
+      "username": "DragonMasterX",
+      "saldo": "$50.75"
+    },
+    {
+      "id": 5,
+      "username": "SpaceExplorer99",
+      "saldo": "$300.30"
+    },
+    {
+      "id": 6,
+      "username": "PixelWizard",
+      "saldo": "$150.00"
+    },
+    {
+      "id": 7,
+      "username": "MysterySeeker",
+      "saldo": "$80.60"
+    },
+    {
+      "id": 8,
+      "username": "EternalDreamer",
+      "saldo": "$400.20"
+    },
+    {
+      "id": 9,
+      "username": "SunnySideUp",
+      "saldo": "$10.00"
+    },
+    {
+      "id": 10,
+      "username": "NeonPhantom",
+      "saldo": "$50.00"
+    },
+    {
+      "id": 11,
+      "username": "CyberPunk99",
+      "saldo": "$125.75"
+    },
+    {
+      "id": 12,
+      "username": "GalacticTraveler",
+      "saldo": "$275.50"
+    },
+    {
+      "id": 13,
+      "username": "TechWizard",
+      "saldo": "$90.25"
+    },
+    {
+      "id": 14,
+      "username": "MysticMage",
+      "saldo": "$180.00"
+    },
+    {
+      "id": 15,
+      "username": "SamuraiWarrior",
+      "saldo": "$200.60"
+    },
+    {
+      "id": 16,
+      "username": "StealthyAssassin",
+      "saldo": "$450.20"
+    },
+    {
+      "id": 17,
+      "username": "CosmicExplorer",
+      "saldo": "$15.00"
+    },
+    {
+      "id": 18,
+      "username": "DreamCatcher",
+      "saldo": "$75.00"
+    },
+    {
+      "id": 19,
+      "username": "ArcaneSorcerer",
+      "saldo": "$300.00"
+    },
+    {
+      "id": 20,
+      "username": "StarStrider",
+      "saldo": "$500.00"
+    },
+    {
+      "id": 21,
+      "username": "NeoGamer",
+      "saldo": "$110.00"
+    },
+    {
+      "id": 22,
+      "username": "TechNinja",
+      "saldo": "$95.50"
+    },
+    {
+      "id": 23,
+      "username": "GalacticHero",
+      "saldo": "$700.75"
+    },
+    {
+      "id": 24,
+      "username": "DreamWalker",
+      "saldo": "$250.25"
+    },
+    {
+      "id": 25,
+      "username": "CyberMage",
+      "saldo": "$180.80"
+    },
+    {
+      "id": 26,
+      "username": "SpacePilot",
+      "saldo": "$600.00"
+    },
+    {
+      "id": 27,
+      "username": "TechSavvy",
+      "saldo": "$50.50"
+    },
+    {
+      "id": 28,
+      "username": "VirtualWarrior",
+      "saldo": "$175.00"
+    },
+    {
+      "id": 29,
+      "username": "DigitalNomad",
+      "saldo": "$125.20"
+    },
+    {
+      "id": 30,
+      "username": "PixelPioneer",
+      "saldo": "$300.40"
+    }
+]
+
+class CustomSelector extends HTMLElement
+{
+	constructor()
+	{
+		super();
+
+        this._title = document.createElement('h2');
+        this._title.innerText = 'Gestor de Cuentas';
+        this._list = document.createElement('ul');
+        this._list.classList.add('custom-list');
+        this.buttonContainer = this._createButtons();
+	}
+
+    _createButtons() {
+            const buttonConfig = [
+                { name: 'Listar', action: 'listar', handler: this._listAccounts.bind(this) },
+                { name: 'Crear', action: 'crear', handler: this._createAccount.bind(this) },
+                { name: 'Editar', action: 'editar', handler: this._editAccount.bind(this) },
+                { name: 'Eliminar', action: 'eliminar', handler: this._deleteAccount.bind(this) },
+                /* { name: '...', action: 'otras', handler: handleOtherAction } */
+            ];
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('button-container');
+
+        buttonConfig.forEach(buttonInfo => {
+            const button = document.createElement('button');
+            button.innerText = buttonInfo.name;
+            button.dataset.action = buttonInfo.action;
+            button.addEventListener('click', buttonInfo.handler);
+            buttonContainer.appendChild(button);
+        });
+
+        return buttonContainer;
+    }
+
+    _listAccounts() {
+          this._list.innerHTML = '';
+
+           accounts.forEach(account => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `ID: ${account.id}, Usuario: ${account.username}, Saldo: ${account.saldo}`;
+                this._list.appendChild(listItem);
+            });
+        }
+
+    _createAccount() {
+            const id = parseInt(prompt('Ingrese el ID del nuevo usuario:'));
+
+            // verificar si la ID ya existe
+            const existingAccount = accounts.find(account => account.id === id);
+            if (existingAccount) {
+                alert('La ID ingresada ya está siendo utilizada por otro usuario. Por favor, ingrese una ID única.');
+                return;
+            }
+          
+            const username = prompt('Ingrese el nombre de usuario:');
+            const saldo = parseFloat(prompt('Ingrese el saldo:'));
+
+
+            const newAccount = {
+                id: id,
+                username: username,
+                saldo: saldo
+            };
+
+            accounts.push(newAccount);
+
+            this._listAccounts();
+      }
+
+
+    _editAccount() {
+    const id = parseInt(prompt('Ingrese el ID del usuario a editar:'));
+    const account = accounts.find(account => account.id === id);
+
+    if (account) {
+        const newUsername = prompt('Ingrese el nuevo nombre de usuario:', account.username);
+        const newSaldo = parseFloat(prompt('Ingrese el nuevo saldo:', account.saldo));
+
+        // actualizar datos 
+        if (newUsername) {
+            account.username = newUsername;
+        }
+        if (!isNaN(newSaldo)) {
+            account.saldo = newSaldo;
+        }
+
+        this._listAccounts();
+    } else {
+        alert(`No se encontró ninguna cuenta con el ID ${id}.`);
+    }
+  }
+
+
+  _deleteAccount() {
+      const id = parseInt(prompt('Ingrese el ID de la cuenta a eliminar:'));
+      const index = accounts.findIndex(account => account.id === id);
+
+      if (index !== -1) {
+          // eliminar
+          accounts.splice(index, 1);
+
+          this._listAccounts();
+          alert('Usuario eliminado correctamente.')
+      } else {
+          alert(`No se encontró ninguna cuenta con el ID ${id}.`);
+      }
+  }
+
+	
+	connectedCallback()
+	{
+		//Es el primer método que se ejecuta cuando la instancia/objeto es insertado dentro
+		//de un nodo que ya sí está representado/renderizado en pantalla.
+		//Recién ahora, el objeto pasa a tener estado activo (Recibe eventos y puede contestarlos)
+		this.appendChild( this._title );
+    this.appendChild(this.buttonContainer);
+    this.appendChild(this._list);
+	}
+	
+	disconnectedCallback()
+	{
+		//Se ejecuta cuando el elemento gráfico es retirado del nodo que lo representa.
+		//Vuelve a estar desconectado de la recepción de eventos.
+	}
+	
+	adoptedCallback()
+	{
+		//Se ejecuta sólo cuando el objeto es movido de "proceso" o de "pestaña"
+	}
+	
+	attributesChangedCallback( oldValue, newValue )
+	{
+		//Se utiliza sólo para personalizar el comportamiento ante cambios en los valores de los atributos
+		//que se definen en la propiedad observableAttributes()
+	}
+	
+	static get observableAttributes()
+	{
+		//Sirve para definir atributos del estilo "HTML" y que tienen posibilidad de ser modificados
+		//durante la ejecución.
+		return ["value"];
+	}
+}
+
+customElements.define('x-custom-selector', CustomSelector);
+const mySelector = new CustomSelector();
+document.body.appendChild(mySelector);
+
+</script>
+</html>
