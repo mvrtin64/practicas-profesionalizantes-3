@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Cuentas</title>
+    <link rel="stylesheet" href="styles.css">
+
+</head>
+<body>
+</body>
+<script>
+class CustomSelector extends HTMLElement
+{
+	constructor()
+	{
+		super();
+
+        this._title = document.createElement('h2');
+        this._title.innerText = 'Gestor de Cuentas';
+        this._list = document.createElement('ul');
+        this._list.classList.add('custom-list');
+        this.buttonContainer = this._createButtons();
+	}
+
+    _createButtons() {
+    const buttonConfig = [
+        { name: 'Listar', action: 'listar', handler: this._listAccounts.bind(this) },
+        { name: 'Crear', action: 'crear', handler: this._createAccount.bind(this) },
+        { name: 'Editar', action: 'editar', handler: this._editAccount.bind(this) },
+        { name: 'Eliminar', action: 'eliminar', handler: this._deleteAccount.bind(this) },
+    ];
+
+        const buttonContainer = document.createElement('div');
+        buttonContainer.classList.add('button-container');
+
+        buttonConfig.forEach(button => {
+        const buttonElement = document.createElement('button');
+        buttonElement.textContent = button.name;
+        buttonElement.dataset.action = button.action;
+        buttonElement.addEventListener('click', button.handler);
+        buttonContainer.appendChild(buttonElement);
+    });
+
+    return buttonContainer;
+}
+
+async _listAccounts() {
+    try {
+        const response = await fetch('/api/accounts');
+        if (!response.ok) {
+            throw new Error('No se pudieron obtener las cuentas');
+        }
+        const data = await response.json();
+        this._updateUI(data);
+    } catch (error) {
+        console.error('Error al listar cuentas:', error);
+    }
+}
+
+_updateUI(data) {
+    this._clearList();
+
+    data.forEach(account => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `ID: ${account.id}, Usuario: ${account.username}, Saldo: ${account.salary}`;
+        this._list.appendChild(listItem);
+    });
+}
+
+_clearList() {
+    this._list.innerHTML = '';
+}
+
+async _createAccount() {
+    const id = parseInt(prompt('Insert ID:'));
+    if (id === null) {return;}
+    const username = prompt('Insert Username:');
+    if (username === null) {return;}
+    const saldo = prompt('Insert Salary:');
+    if (saldo === null) {return;}
+
+    // verificar si la id existe
+    try {
+        const response = await fetch(`/api/accounts/${id}`);
+        if (response.ok) {
+            alert('La ID ingresada ya está siendo utilizada por otro usuario. Por favor, ingrese una ID única.');
+            return; 
+        }
+    } catch (error) {
+        console.error('Error al verificar ID:', error);
+        alert('Ocurrió un error al verificar la ID. Por favor, inténtelo de nuevo.');
+        return; 
+    }
+
+    // si no existe, crear la cuenta 
+    try {
+        const response = await fetch('/api/accounts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id, username, saldo })
+        });
+        if (!response.ok) {
+            throw new Error('No se pudo crear la cuenta');
+        }
+        this._listAccounts();
+        alert('Success!')
+    } catch (error) {
+        console.error('Error al crear cuenta:', error);
+        alert('Ocurrió un error al crear la cuenta. Por favor, inténtelo de nuevo.');
+    }
+}
+
+async _editAccount() {
+    const id = prompt('ID from the account you want to edit:');
+    if (id === null) {return;}
+    const username = prompt('New Username:');
+    if (username === null) {return;}
+    const saldo = prompt('Insert New Salary:');
+    if (saldo === null) {return;}
+
+    try {
+        const response = await fetch(`/api/accounts/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, saldo })
+        });
+        if (!response.ok) {
+            throw new Error('No se pudo editar la cuenta');
+        }
+        this._listAccounts();
+        alert('Success!');
+    } catch (error) {
+        console.error('Error al editar cuenta:', error);
+    }
+}
+
+async _deleteAccount() {
+    const id = prompt('ID from the account you want to delete:');
+    if (id === null) {return;}
+
+    try {
+        const response = await fetch(`/api/accounts/${id}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            throw new Error('No se pudo eliminar la cuenta');
+        }
+        this._listAccounts(); 
+        alert('Success!')
+    } catch (error) {
+        console.error('Error al eliminar cuenta:', error);
+    }
+}
+
+	
+	connectedCallback()
+	{
+		//Es el primer método que se ejecuta cuando la instancia/objeto es insertado dentro
+		//de un nodo que ya sí está representado/renderizado en pantalla.
+		//Recién ahora, el objeto pasa a tener estado activo (Recibe eventos y puede contestarlos)
+		this.appendChild( this._title );
+        this.appendChild(this.buttonContainer);
+        this.appendChild(this._list);
+	}
+	
+	disconnectedCallback()
+	{
+		//Se ejecuta cuando el elemento gráfico es retirado del nodo que lo representa.
+		//Vuelve a estar desconectado de la recepción de eventos.
+	}
+	
+	adoptedCallback()
+	{
+		//Se ejecuta sólo cuando el objeto es movido de "proceso" o de "pestaña"
+	}
+	
+	attributesChangedCallback( oldValue, newValue )
+	{
+		//Se utiliza sólo para personalizar el comportamiento ante cambios en los valores de los atributos
+		//que se definen en la propiedad observableAttributes()
+	}
+	
+	static get observableAttributes()
+	{
+		//Sirve para definir atributos del estilo "HTML" y que tienen posibilidad de ser modificados
+		//durante la ejecución.
+		return ["value"];
+	}
+}
+
+customElements.define('x-custom-selector', CustomSelector);
+const mySelector = new CustomSelector();
+document.body.appendChild(mySelector);
+
+</script>
+</html>
