@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MVC WebComponent Calculator</title>
+    <style>
+        .numberButton {
+            background-color: blue;
+            color: #FFFFFF;
+            border-color: #FFFFFF;
+            border-radius: 6px;
+            width: 100%;
+        }
+
+        .operatorButton {
+            background-color: #00FF04;
+            color: #FFFFFF;
+            border-color: #FFFFFF;
+            border-radius: 6px;
+            width: 100%;
+        }
+
+        .clearButton {
+            background-color: #FF0000;
+            color: #FFFFFF;
+            border-color: #FFFFFF;
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        .calculateButton {
+            background-color: #FFB900;
+            color: #FFFFFF;
+            border-color: #FFFFFF;
+            width: 100%;
+            border-radius: 6px;
+        }
+
+        .displayResult {
+            border-radius: 6px;
+            width: 100%;
+            height: 30px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <calculator-app></calculator-app>
+    <script type="module">
+        class CalculatorModel {
+            constructor() {
+                this.value = '';
+            }
+
+            append(char) {
+                this.value += char;
+            }
+
+            clear() {
+                this.value = '';
+            }
+
+            calculate() {
+                try {
+                    this.value = eval(this.value);
+                } catch (e) {
+                    this.value = 'Error';
+                }
+            }
+        }
+
+        class CalculatorView extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({ mode: 'open' });
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    .numberButton {
+                        background-color: blue;
+                        color: #FFFFFF;
+                        border-color: #FFFFFF;
+                        border-radius: 6px;
+                        width: 100%;
+                    }
+
+                    .operatorButton {
+                        background-color: #00FF04;
+                        color: #FFFFFF;
+                        border-color: #FFFFFF;
+                        border-radius: 6px;
+                        width: 100%;
+                    }
+
+                    .clearButton {
+                        background-color: #FF0000;
+                        color: #FFFFFF;
+                        border-color: #FFFFFF;
+                        width: 100%;
+                        border-radius: 6px;
+                    }
+
+                    .calculateButton {
+                        background-color: #FFB900;
+                        color: #FFFFFF;
+                        border-color: #FFFFFF;
+                        width: 100%;
+                        border-radius: 6px;
+                    }
+
+                    .displayResult {
+                        border-radius: 6px;
+                        width: 100%;
+                        height: 30px;
+                        font-size: 20px;
+                    }
+                `;
+                this.shadowRoot.appendChild(style);
+
+                const table = document.createElement('table');
+
+                const displayRow = document.createElement('tr');
+                const displayCell = document.createElement('td');
+                displayCell.colSpan = 4;
+                this.display = document.createElement('input');
+                this.display.className = 'displayResult';
+                this.display.id = 'display';
+                this.display.type = 'text';
+                this.display.value = '';
+                this.display.disabled = true;
+                displayCell.appendChild(this.display);
+                displayRow.appendChild(displayCell);
+                table.appendChild(displayRow);
+
+                const buttons = [
+                    ['7', '8', '9', '+'],
+                    ['4', '5', '6', '-'],
+                    ['3', '2', '1', 'x'],
+                    ['0', '.', '=', '/'],
+                    ['BORRAR']
+                ];
+
+                buttons.forEach(row => {
+                    const tr = document.createElement('tr');
+                    row.forEach(buttonText => {
+                        const td = document.createElement('td');
+                        const button = document.createElement('button');
+                        button.innerText = buttonText;
+                        if (!isNaN(buttonText) || buttonText === '.') {
+                            button.className = 'numberButton';
+                        } else if (buttonText === 'BORRAR') {
+                            button.className = 'clearButton';
+                            td.colSpan = 4;
+                        } else if (buttonText === '=') {
+                            button.className = 'calculateButton';
+                        } else {
+                            button.className = 'operatorButton';
+                        }
+                        td.appendChild(button);
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
+
+                this.shadowRoot.appendChild(table);
+            }
+
+            bindClickHandler(handler) {
+                this.shadowRoot.querySelectorAll('button').forEach(button => {
+                    button.addEventListener('click', event => {
+                        handler(event.target.innerText);
+                    });
+                });
+            }
+
+            updateDisplay(value) {
+                this.shadowRoot.querySelector('#display').value = value;
+            }
+
+            connectedCallback() {}
+
+            disconnectedCallback() {}
+
+            adoptedCallback() {}
+
+            attributeChangedCallback(oldValue, newValue) {}
+
+            static observableAttributes() {
+                return [];
+            }
+        }
+
+        customElements.define('calculator-view', CalculatorView);
+
+        class CalculatorController {
+            constructor(model, view) {
+                this.model = model;
+                this.view = view;
+
+                this.view.bindClickHandler(this.handleButtonClick.bind(this));
+                this.view.updateDisplay(this.model.value);
+            }
+
+            handleButtonClick(value) {
+                if (value === 'BORRAR') {
+                    this.model.clear();
+                } else if (value === '=') {
+                    this.model.calculate();
+                } else if (value === 'x') {
+                    this.model.append('*');
+                } else {
+                    this.model.append(value);
+                }
+
+                this.view.updateDisplay(this.model.value);
+            }
+        }
+
+        customElements.define('calculator-app', class extends HTMLElement {
+            constructor() {
+                super();
+                const model = new CalculatorModel();
+                const view = new CalculatorView();
+                this.appendChild(view);
+                new CalculatorController(model, view);
+            }
+        });
+    </script>
+</body>
+</html>
