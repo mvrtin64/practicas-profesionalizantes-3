@@ -2,7 +2,7 @@ import { WCCalculatorView } from './WCCalculatorView.js';
 import { WCCalculatorController } from './WCCalculatorController.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const view = document.createElement('calculator-view');
+    const view = new WCCalculatorView(); 
     document.body.appendChild(view);
     new WCCalculatorController(view);
 });

@@ -2,7 +2,7 @@ export class WCCalculatorView extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        
+
         // Create styles
         const style = document.createElement('style');
         style.textContent = `
@@ -55,37 +55,63 @@ export class WCCalculatorView extends HTMLElement {
         displayRow.appendChild(displayCell);
         table.appendChild(displayRow);
 
-        const buttons = [
-            ['7', '8', '9', '+'],
-            ['4', '5', '6', '-'],
-            ['3', '2', '1', 'x'],
-            ['0', '.', '=', '/'],
-            ['BORRAR']
-        ];
-
-        buttons.forEach(row => {
-            const tr = document.createElement('tr');
-            row.forEach(buttonText => {
-                const td = document.createElement('td');
-                const button = document.createElement('button');
-                button.innerText = buttonText;
-                if (!isNaN(buttonText) || buttonText === '.') {
-                    button.className = 'numberButton';
-                } else if (buttonText === 'BORRAR') {
-                    button.className = 'clearButton';
-                    td.colSpan = 4;
-                } else if (buttonText === '=') {
-                    button.className = 'calculateButton';
-                } else {
-                    button.className = 'operatorButton';
-                }
-                td.appendChild(button);
-                tr.appendChild(td);
-            });
-            table.appendChild(tr);
-        });
-
+        this.createButtons(table);
         this.shadowRoot.appendChild(table);
+    }
+
+    createButtons(table) {
+        const buttons = {
+            '7': 'numberButton',
+            '8': 'numberButton',
+            '9': 'operatorButton',
+            '/': 'operatorButton',
+            '4': 'numberButton',
+            '5': 'numberButton',
+            '6': 'operatorButton',
+            'x': 'operatorButton',
+            '1': 'numberButton',
+            '2': 'numberButton',
+            '3': 'operatorButton',
+            '-': 'operatorButton',
+            '0': 'numberButton',
+            '.': 'numberButton',
+            '=': 'calculateButton',
+            '+': 'operatorButton',
+            'BORRAR': 'clearButton'
+        };
+
+        let row = document.createElement('tr');
+        let count = 0;
+
+        for (const [text, className] of Object.entries(buttons)) {
+            const td = document.createElement('td');
+            const button = document.createElement('button');
+            button.innerText = text;
+            button.className = className;
+
+            if (text === 'BORRAR') {
+                td.colSpan = 4; // Make the clear button span across all columns
+                row.appendChild(td);
+                row.appendChild(button);
+                table.appendChild(row);
+                row = document.createElement('tr'); // Start a new row
+                count = 0; // Reset count for new row
+            } else {
+                td.appendChild(button);
+                row.appendChild(td);
+                count++;
+                if (count === 4) { // After 4 buttons, create a new row
+                    table.appendChild(row);
+                    row = document.createElement('tr'); // Start a new row
+                    count = 0; // Reset count for new row
+                }
+            }
+        }
+
+        // Append any remaining buttons in the last row
+        if (count > 0) {
+            table.appendChild(row);
+        }
     }
 
     bindClickHandler(handler) {
